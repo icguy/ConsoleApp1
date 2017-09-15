@@ -32,7 +32,7 @@ namespace ConsoleApp1
 		{
 			var logs = EventLog.GetEventLogs();
 			var securityLog = logs.Where(l => l.Log == "Security").FirstOrDefault();
-			if( securityLog == null )
+			if (securityLog == null)
 				throw new Exception("securitylog null");
 			return securityLog;
 		}
@@ -54,9 +54,9 @@ namespace ConsoleApp1
 		{
 			long[] loginIds = new[] { 4624L, 4648L, 4801L, };
 			long[] logoutIds = new[] { 4634L, 4800L, 4647L, };
-			if( loginIds.Contains(id) )
+			if (loginIds.Contains(id))
 				return EventType.Arrival;
-			if( logoutIds.Contains(id) )
+			if (logoutIds.Contains(id))
 				return EventType.Departure;
 			return EventType.Unknown;
 		}
@@ -64,40 +64,52 @@ namespace ConsoleApp1
 		static DateTime GetLastMidnight()
 		{
 			DateTime result = DateTime.Now;
-			result.AddHours(-result.Hour);
-			result.AddMinutes(-result.Minute);
+			result = result.AddHours(-result.Hour);
+			result = result.AddMinutes(-result.Minute);
 			return result;
 		}
-				
+
 		class WorkTimes
 		{
-			public TimeSpan Balance;
-			public List<DailyWork> DailyWorks;
+			public TimeSpan Balance { get; set; }
+			public List<DailyWork> DailyWorks { get; set; }
 			public void AddDailyWork(IEnumerable<WorkEvent> events)
 			{
-				TimeSpan balance = TimeSpan.FromHours(8);
+				TimeSpan balance = TimeSpan.FromHours(-8);
+				events = GetLastDay(events);
 				List<WorkEvent> filteredEvents = new List<WorkEvent>();
-				
+
 				DateTime? lastSignin = null;
-				foreach( var e in events )
+				foreach (var e in events)
 				{
-					if( lastSignin == null )
+					if (lastSignin == null && e.Type == EventType.Arrival)
 					{
-						if( e.Type == EventType.Arrival )
-						{
-							lastSignin = e.Time;
-							filteredEvents.Add(e);
-						}
+						lastSignin = e.Time;
+						filteredEvents.Add(e);
 					}
-					else if( e.Type == EventType.Departure )
+					else if (e.Type == EventType.Departure)
 					{
 						balance -= (e.Time - lastSignin.Value);
 						lastSignin = null;
 						filteredEvents.Add(e);
 					}
 				}
+				if (lastSignin != null)
+				{
+					filteredEvents.Add(new WorkEvent() { Type = EventType.Departure, Time = GetLastMidnight() });
+				}
 
+				var dailyWork = new DailyWork()
+				{
+					Balance = this.Balance - balance,
+				};
 			}
+		}
+
+		static IEnumerable<WorkEvent> GetLastDay(IEnumerable<WorkEvent> events)
+		{
+			var lastMidnight = GetLastMidnight();
+			return events.Where(e => (e.Time < lastMidnight && e.Time > lastMidnight.AddDays(-1)));
 		}
 
 		class DailyWork
