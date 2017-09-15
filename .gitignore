@@ -2,18 +2,10 @@
 [Bb]in/
 [Oo]bj/
 
-# Publish results
-.publish
-
 # User-specific files
 .vs/
 .vscode/
 .idea/
 *.suo
-*.user
-
-# NuGet
-.nuget/
-.packages/
-node_modules/
-/src/EkaerService.Web/Properties/launchSettings.json
+*.csproj
+*.sln
