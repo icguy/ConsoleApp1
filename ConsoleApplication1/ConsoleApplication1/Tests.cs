@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Diagnostics;
+using ConsoleApp1.Model;
 
 namespace ConsoleApp1
 {
-	class Tests
+	class WorkTimesBuilderTest : WorkTimesBuilder
 	{
-		public static void RunTests()
+		public void RunTests()
 		{
-			bool b = T001();
-			Debug.Assert(T001());
+			Debug.Assert(this.T001());
+			Console.WriteLine("Testing finished");
+			Console.ReadLine();
 		}
 
-		static bool T001()
+		bool T001()
 		{
 			WorkEvent[] events = new WorkEvent[] {
 				new WorkEvent()
@@ -36,7 +38,7 @@ namespace ConsoleApp1
 				}
 			};
 
-			var dailywork = DailyWork.FromWorkEvents(events);
+			var dailywork = this.FromWorkEvents(events);
 			return TSEquals(dailywork.Balance, new TimeSpan(0, 0, 0));
 		}
 
