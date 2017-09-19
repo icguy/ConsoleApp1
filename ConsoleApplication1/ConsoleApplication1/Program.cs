@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ConsoleApp1.Model;
+using ConsoleApplication1.Model;
 
-namespace ConsoleApp1
+namespace ConsoleApplication1
 {
 	class Program
 	{

@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ConsoleApp1.Model;
+using ConsoleApplication1.Model;
 
-namespace ConsoleApp1
+namespace ConsoleApplication1
 {
 	class WorkTimesBuilder
 	{

@@ -1,4 +1,4 @@
-﻿namespace ConsoleApp1.Model
+﻿namespace ConsoleApplication1.Model
 {
 	public enum EventType
 	{

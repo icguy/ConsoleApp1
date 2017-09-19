@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace ConsoleApp1
+namespace ConsoleApplication1
 {
 	class LogReader
 	{

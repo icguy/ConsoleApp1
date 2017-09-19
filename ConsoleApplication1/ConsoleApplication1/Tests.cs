@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using ConsoleApp1.Model;
+using ConsoleApplication1.Model;
 
-namespace ConsoleApp1
+namespace ConsoleApplication1
 {
 	class WorkTimesBuilderTest : WorkTimesBuilder
 	{

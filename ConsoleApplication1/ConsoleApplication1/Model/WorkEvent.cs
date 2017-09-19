@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 
-namespace ConsoleApp1.Model
+namespace ConsoleApplication1.Model
 {
 	public class WorkEvent
 	{
