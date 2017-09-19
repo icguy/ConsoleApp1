@@ -4,7 +4,7 @@ using ConsoleApplication1.Model;
 
 namespace ConsoleApplication1
 {
-	class WorkTimesBuilderTest
+	class Tests
 	{
 		public void RunTests()
 		{

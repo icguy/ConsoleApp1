@@ -11,7 +11,7 @@ namespace ConsoleApplication1
 		const string dataFile = "times.json";
 		static void Main(string[] args)
 		{
-			new WorkTimesBuilderTest().RunTests();
+			new Tests().RunTests();
 
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
 			eventList.ForEach(e => e.PrintEvent());
