@@ -55,5 +55,14 @@ namespace ConsoleApplication1
 			}
 			workTimes.DailyWorks = newDailyWorks.ToArray();
 		}
+
+		public static void PrintEvent(this EventLogEntry entry)
+		{
+			Console.Write($"category: {entry.Category}, ");
+			Console.Write($"type: {entry.EntryType}, ");
+			Console.Write($"id: {entry.InstanceId}, ");
+			Console.Write($"time: {entry.TimeGenerated}, ");
+			Console.WriteLine($"type: {entry.GetEventType()}");
+		}
 	}
 }

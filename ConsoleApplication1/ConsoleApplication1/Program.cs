@@ -14,12 +14,22 @@ namespace ConsoleApplication1
 			new WorkTimesBuilderTest().RunTests();
 
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
-			eventList.ForEach((e) => Console.WriteLine($"category: {e.Category}, type: {e.EntryType}, id: {e.InstanceId}, time1: {e.TimeGenerated}, type: {e.GetEventType()}"));
+			eventList.ForEach(e => e.PrintEvent());
 			Console.WriteLine();
-			var wtb = new WorkTimesBuilder();
-			wtb.Build(null, eventList);
+			
+			BuildWorkTimes(null, eventList);
 
 			Console.ReadLine();
+		}
+
+		public static WorkTimes BuildWorkTimes(WorkTimes workTimes, IEnumerable<EventLogEntry> events)
+		{
+			if (workTimes == null)
+				workTimes = new WorkTimes();
+
+			var workEvents = events.Select(e => e.ToWorkEvent());
+			workTimes.AddWorks(workEvents);
+			return workTimes;
 		}
 	}
 }

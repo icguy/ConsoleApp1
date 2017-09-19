@@ -23,7 +23,7 @@ namespace ConsoleApplication1.Model
 					lastSignin = e.Time;
 					filteredEvents.Add(e);
 				}
-				else if (e.Type == EventType.Departure)
+				else if (e.Type == EventType.Departure && lastSignin != null)
 				{
 					balance += (e.Time - lastSignin.Value);
 					lastSignin = null;
