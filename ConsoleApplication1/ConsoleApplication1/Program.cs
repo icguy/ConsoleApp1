@@ -11,8 +11,7 @@ namespace ConsoleApp1
 		{
 			//Tests.RunTests();
 
-			EventLog securityLog = GetSecurityLog();
-			List<EventLogEntry> eventList = GetEvents(securityLog);
+			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
 			WriteToLog(eventList);
 			eventList.ForEach((e) => Console.WriteLine($"category: {e.Category}, type: {e.EntryType}, id: {e.InstanceId}, time1: {e.TimeGenerated}, type: {GetEventType(e.InstanceId)}"));
 			Console.WriteLine();
@@ -20,30 +19,6 @@ namespace ConsoleApp1
 			wt.AddWorks(eventList.Select(e => WorkEvent.FromLogEntry(e)).ToList());
 
 			Console.ReadLine();
-		}
-
-		public static List<EventLogEntry> GetEvents(EventLog securityLog)
-		{
-			var q = securityLog.Entries.Cast<EventLogEntry>();
-			q = FilterId(q);
-			var eventlist = q.ToList();
-			return eventlist;
-		}
-
-		public static EventLog GetSecurityLog()
-		{
-			var logs = EventLog.GetEventLogs();
-			var securityLog = logs.Where(l => l.Log == "Security").FirstOrDefault();
-			if( securityLog == null )
-				throw new Exception("securitylog null");
-			return securityLog;
-		}
-
-		public static IEnumerable<EventLogEntry> FilterId(IEnumerable<EventLogEntry> q)
-		{
-			long[] ids = new[] { 4647L, 4648L, 4800L, 4801L, /*4624L,*/ /*4634L*/ };
-			q = q.Where(e => ids.Contains(e.InstanceId));
-			return q;
 		}
 
 		const string dataFile = "times.json";
