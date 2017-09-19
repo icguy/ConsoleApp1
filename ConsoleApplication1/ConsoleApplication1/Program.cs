@@ -16,8 +16,12 @@ namespace ConsoleApplication1
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
 			eventList.ForEach(e => e.PrintEvent());
 			Console.WriteLine();
-			
-			BuildWorkTimes(null, eventList);
+
+			var workTimes = FileIO.ReadFromFile(dataFile);
+			BuildWorkTimes(workTimes, eventList);
+			FileIO.WriteToFile(dataFile, workTimes);
+			Console.WriteLine();
+			Console.WriteLine(workTimes.Balance);
 
 			Console.ReadLine();
 		}

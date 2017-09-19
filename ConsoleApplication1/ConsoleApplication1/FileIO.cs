@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization.Json;
 using ConsoleApplication1.Model;
 
@@ -11,7 +12,14 @@ namespace ConsoleApplication1
 			using (var fileStream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read))
 			{
 				var serializer = new DataContractJsonSerializer(typeof(WorkTimes));
-				var deserializedObject = serializer.ReadObject(fileStream) as WorkTimes;
+				WorkTimes deserializedObject = null;
+				try
+				{
+					deserializedObject = serializer.ReadObject(fileStream) as WorkTimes;
+				}
+				catch (Exception)
+				{
+				}
 				return deserializedObject ?? new WorkTimes();
 			}
 		}
