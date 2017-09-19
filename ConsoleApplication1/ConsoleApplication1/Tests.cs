@@ -38,7 +38,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = this.FromWorkEvents(events);
+			var dailywork = DailyWork.FromWorkEvents(events);
 			return TSEquals(dailywork.Balance, new TimeSpan(0, 0, 0));
 		}
 

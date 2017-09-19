@@ -14,7 +14,7 @@ namespace ConsoleApplication1
 			new WorkTimesBuilderTest().RunTests();
 
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
-			eventList.ForEach((e) => Console.WriteLine($"category: {e.Category}, type: {e.EntryType}, id: {e.InstanceId}, time1: {e.TimeGenerated}, type: {WorkTimesBuilder.GetEventType(e.InstanceId)}"));
+			eventList.ForEach((e) => Console.WriteLine($"category: {e.Category}, type: {e.EntryType}, id: {e.InstanceId}, time1: {e.TimeGenerated}, type: {e.GetEventType()}"));
 			Console.WriteLine();
 			var wtb = new WorkTimesBuilder();
 			wtb.Build(null, eventList);
