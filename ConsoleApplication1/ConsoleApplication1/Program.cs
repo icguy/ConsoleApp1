@@ -9,7 +9,7 @@ namespace ConsoleApp1
 	{
 		static void Main(string[] args)
 		{
-			//Tests.RunTests();
+			Tests.RunTests();
 
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
 			WriteToLog(eventList);
