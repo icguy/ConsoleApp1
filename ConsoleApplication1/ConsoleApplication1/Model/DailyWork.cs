@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace ConsoleApplication1.Model
 {
@@ -16,21 +17,21 @@ namespace ConsoleApplication1.Model
 			List<WorkEvent> filteredEvents = new List<WorkEvent>();
 
 			DateTime? lastSignin = null;
-			foreach (var e in events)
+			foreach( var e in events )
 			{
-				if (lastSignin == null && e.Type == EventType.Arrival)
+				if( lastSignin == null && e.Type == EventType.Arrival )
 				{
 					lastSignin = e.Time;
 					filteredEvents.Add(e);
 				}
-				else if (e.Type == EventType.Departure && lastSignin != null)
+				else if( e.Type == EventType.Departure && lastSignin != null )
 				{
 					balance += (e.Time - lastSignin.Value);
 					lastSignin = null;
 					filteredEvents.Add(e);
 				}
 			}
-			if (lastSignin != null)
+			if( lastSignin != null )
 			{
 				filteredEvents.Remove(filteredEvents.Last());
 			}
@@ -40,6 +41,31 @@ namespace ConsoleApplication1.Model
 				Balance = balance,
 				Events = filteredEvents.ToArray()
 			};
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine($"{this.Events.FirstOrDefault().Time.Date.ToShortDateString()} | {this.Balance}");
+			foreach( var workEvent in this.Events )
+			{
+				string typeChar; ;
+				switch( workEvent.Type )
+				{
+					case EventType.Arrival:
+						typeChar = "A";
+						break;
+					case EventType.Departure:
+						typeChar = "D";
+						break;
+					case EventType.Unknown:
+					default:
+						typeChar = "U";
+						break;
+				}
+				sb.AppendLine($"  {typeChar} {workEvent.Time.TimeOfDay}");
+			}
+			return sb.ToString();
 		}
 	}
 }

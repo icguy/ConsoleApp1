@@ -11,7 +11,8 @@ namespace ConsoleApplication1
 		const string dataFile = "times.json";
 		static void Main(string[] args)
 		{
-			new Tests().RunTests();
+			if( args.Contains("/tests") )
+				new Tests().RunTests();
 
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
 			eventList.ForEach(e => e.PrintEvent());
@@ -21,6 +22,14 @@ namespace ConsoleApplication1
 			BuildWorkTimes(workTimes, eventList);
 			FileIO.WriteToFile(dataFile, workTimes);
 			Console.WriteLine();
+
+			var count = workTimes.DailyWorks.Count();
+			var lastN = workTimes.DailyWorks.Skip(count - 5);
+			foreach( var dailyWork in lastN )
+			{
+				Console.WriteLine(dailyWork);
+			}
+			Console.WriteLine("total:");
 			Console.WriteLine(workTimes.Balance);
 
 			Console.ReadLine();
