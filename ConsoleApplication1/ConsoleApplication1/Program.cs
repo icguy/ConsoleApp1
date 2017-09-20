@@ -25,10 +25,13 @@ namespace ConsoleApplication1
 			if( args.Contains("/addregistry") )
 			{
 				rk.SetValue("WorkTime", System.Reflection.Assembly.GetExecutingAssembly().Location);
+				Console.WriteLine("Now running on startup");
 			}
 			else if( args.Contains("/removeregistry") )
 			{
 				rk.DeleteValue("WorkTime");
+				Console.WriteLine("Disabled running on startup");
+				Console.ReadLine();
 				return;
 			}
 
