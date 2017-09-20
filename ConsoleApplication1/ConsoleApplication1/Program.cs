@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ConsoleApplication1.Model;
+using Microsoft.Win32;
 
 namespace ConsoleApplication1
 {
@@ -11,8 +12,25 @@ namespace ConsoleApplication1
 		const string dataFile = "times.json";
 		static void Main(string[] args)
 		{
+			if( args.Contains("/help") )
+			{
+				PrintHelp();
+				return;
+			}
+
 			if( args.Contains("/tests") )
 				new Tests().RunTests();
+
+			RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+			if( args.Contains("/addregistry") )
+			{
+				rk.SetValue("WorkTime", System.Reflection.Assembly.GetExecutingAssembly().Location);
+			}
+			else if( args.Contains("/removeregistry") )
+			{
+				rk.DeleteValue("WorkTime");
+				return;
+			}
 
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
 			eventList.ForEach(e => e.PrintEvent());
@@ -37,12 +55,21 @@ namespace ConsoleApplication1
 
 		public static WorkTimes BuildWorkTimes(WorkTimes workTimes, IEnumerable<EventLogEntry> events)
 		{
-			if (workTimes == null)
+			if( workTimes == null )
 				workTimes = new WorkTimes();
 
 			var workEvents = events.Select(e => e.ToWorkEvent());
 			workTimes.AddWorks(workEvents);
 			return workTimes;
+		}
+
+		public static void PrintHelp()
+		{
+			Console.WriteLine("Switches:");
+			Console.WriteLine("/help: this help page");
+			Console.WriteLine("/tests: run tests at startup");
+			Console.WriteLine("/addregistry: run at startup");
+			Console.WriteLine("/removeregistry: disables run at startup, then exits");
 		}
 	}
 }
