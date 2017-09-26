@@ -217,18 +217,25 @@ namespace ConsoleApplication1
 
 			FileIO.WriteToFile("testfile.json", wt);
 			var wt2 = FileIO.ReadFromFile("testfile.json");
-			if (!TSEquals(wt2.Balance, wt.Balance))
+			if( !TSEquals(wt2.Balance, wt.Balance) )
 				return false;
-			if (wt2.DailyWorks.Length != wt.DailyWorks.Length)
+			if( wt2.DailyWorks.Length != wt.DailyWorks.Length )
 				return false;
-			for (int i = 0; i < wt.DailyWorks.Length; i++)
+			for( int i = 0; i < wt.DailyWorks.Length; i++ )
 			{
-				if (!TSEquals(wt.DailyWorks[i].Balance, wt2.DailyWorks[i].Balance))
+				if( !TSEquals(wt.DailyWorks[i].Balance, wt2.DailyWorks[i].Balance) )
 					return false;
 			}
 			return true;
 		}
-	
+		//bool T008_DeleteDay()
+		//{
+		//	var testFile = "test.json";
+
+
+		//	var app = new WorkTimeApp(testFile);
+		//}
+
 		static bool TSEquals(TimeSpan ts1, TimeSpan ts2)
 		{
 			TimeSpan delta = TimeSpan.FromMilliseconds(10);
