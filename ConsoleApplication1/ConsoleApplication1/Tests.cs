@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using ConsoleApplication1.Model;
 
 namespace ConsoleApplication1
 {
-	class Tests
+	class Tests : WorkTimeApp
 	{
+		public Tests() : base("test.json")
+		{
+
+		}
+
 		public void RunTests()
 		{
 			Debug.Assert(this.T001_DailyWork_FromEvents(), "T001");
@@ -15,6 +21,7 @@ namespace ConsoleApplication1
 			Debug.Assert(this.T005_DailyWork_FromEvents(), "T005");
 			Debug.Assert(this.T006_DailyWork_FromEvents(), "T006");
 			Debug.Assert(this.T007_FileIO(), "T007");
+			Debug.Assert(this.T008_DeleteDay(), "T008");
 			Console.WriteLine("Testing finished");
 			Console.ReadLine();
 		}
@@ -228,13 +235,54 @@ namespace ConsoleApplication1
 			}
 			return true;
 		}
-		//bool T008_DeleteDay()
-		//{
-		//	var testFile = "test.json";
-
-
-		//	var app = new WorkTimeApp(testFile);
-		//}
+		bool T008_DeleteDay()
+		{
+			var testFile = "test.json";
+			WorkEvent[] events = new WorkEvent[] {
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 09, 12, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 12, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 02, 12, 42, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 02, 17, 52, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 03, 17, 52, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 03, 17, 55, 00),
+					Type = EventType.Departure
+				}
+			};
+			var workTimes = new WorkTimes();
+			workTimes.AddWorks(events);
+			FileIO.WriteToFile(_dataFile, workTimes);
+			this.DeleteDay(new[] { "/deleteday", "2017.06.02" });
+			var newWorkTimes = FileIO.ReadFromFile(_dataFile);
+			if (newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 2) != null)
+				return false;
+			if (newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 1).Events.Count() != 2)
+				return false;
+			if (newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 3).Events.Count() != 2)
+				return false;
+			return true;
+		}
 
 		static bool TSEquals(TimeSpan ts1, TimeSpan ts2)
 		{

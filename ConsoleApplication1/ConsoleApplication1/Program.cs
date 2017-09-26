@@ -18,7 +18,7 @@ namespace ConsoleApplication1
 	}
 	public class WorkTimeApp
 	{
-		private readonly string _dataFile = "times.json";
+		protected readonly string _dataFile = "times.json";
 
 		public WorkTimeApp(string dataFile)
 		{
@@ -74,7 +74,7 @@ namespace ConsoleApplication1
 			Console.WriteLine(workTimes.Balance);
 		}
 
-		void DeleteDay(string[] args)
+		protected void DeleteDay(string[] args)
 		{
 			int year = -1;
 			int month = -1;
