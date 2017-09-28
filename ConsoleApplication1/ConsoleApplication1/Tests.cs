@@ -9,10 +9,12 @@ namespace ConsoleApplication1
 	class Tests : WorkTimeApp
 	{
 		private readonly TestFileIO _testFileIO;
+		private readonly TestInput _testInput;
 
 		public Tests() : base(new TestFileIO(), new TestInput())
 		{
 			_testFileIO = _fileIO as TestFileIO;
+			_testInput = _input as TestInput;
 		}
 
 		public void RunTests()
@@ -27,6 +29,7 @@ namespace ConsoleApplication1
 			Debug.Assert(this.T008_DeleteDay(), "T008");
 			Debug.Assert(this.T009_Recalculate(), "T009");
 			Debug.Assert(this.T010_EditDay(), "T010");
+			Console.WriteLine();
 			Console.WriteLine("Testing finished");
 			Console.ReadLine();
 		}
@@ -369,9 +372,13 @@ namespace ConsoleApplication1
 					},
 				}
 			};
-
-
-
+			_testFileIO.WorkTimes = workTimes;
+			var inputs = new[] { "y", "n", "n", "y" };
+			int inputIdx = 0;
+			_testInput.OnReadline = () => { return inputs[inputIdx++]; };
+			
+			this.EditDay(new[] { "/editday", "2017.06.21" });
+			
 			if ( !TSEquals(workTimes.Balance, new TimeSpan(4, 0, 0)) )
 				return false;
 			foreach ( var dailyWork in workTimes.DailyWorks )
@@ -391,7 +398,7 @@ namespace ConsoleApplication1
 
 	class TestInput : IUserInput
 	{
-		public Func<string> OnReadline = () => { throw new NotImplementedException(); };
+		public Func<string> OnReadline { get; set; } = () => { throw new NotImplementedException(); };
 		public string ReadLine()
 		{
 			return OnReadline();
