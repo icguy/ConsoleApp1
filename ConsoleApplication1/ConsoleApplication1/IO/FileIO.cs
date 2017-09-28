@@ -3,13 +3,19 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using ConsoleApplication1.Model;
 
-namespace ConsoleApplication1
+namespace ConsoleApplication1.IO
 {
-	static class FileIO
+	public class FileIO : IFileIO
 	{
-		public static WorkTimes ReadFromFile(string filePath)
+		private readonly string _filePath;
+		public FileIO(string filePath)
 		{
-			using (var fileStream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read))
+			_filePath = filePath;
+		}
+
+		public WorkTimes ReadFromFile()
+		{
+			using (var fileStream = File.Open(_filePath, FileMode.OpenOrCreate, FileAccess.Read))
 			{
 				var serializer = new DataContractJsonSerializer(typeof(WorkTimes));
 				WorkTimes deserializedObject = null;
@@ -24,9 +30,9 @@ namespace ConsoleApplication1
 			}
 		}
 
-		public static void WriteToFile(string filePath, WorkTimes workTimes)
+		public void WriteToFile(WorkTimes workTimes)
 		{
-			using (var fileStream = File.Open(filePath, FileMode.Create, FileAccess.Write))
+			using (var fileStream = File.Open(_filePath, FileMode.Create, FileAccess.Write))
 			{
 				var serializer = new DataContractJsonSerializer(typeof(WorkTimes));
 				serializer.WriteObject(fileStream, workTimes);

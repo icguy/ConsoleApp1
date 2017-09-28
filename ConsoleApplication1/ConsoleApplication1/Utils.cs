@@ -41,6 +41,5 @@ namespace ConsoleApplication1
 				Events = filteredEvents.ToArray()
 			};
 		}
-
 	}
 }

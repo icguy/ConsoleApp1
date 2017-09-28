@@ -16,21 +16,7 @@ namespace ConsoleApplication1.Model
 			sb.AppendLine($"{this.Events.FirstOrDefault().Time.Date.ToShortDateString()} | {this.Balance}");
 			foreach( var workEvent in this.Events )
 			{
-				string typeChar; ;
-				switch( workEvent.Type )
-				{
-					case EventType.Arrival:
-						typeChar = "A";
-						break;
-					case EventType.Departure:
-						typeChar = "D";
-						break;
-					case EventType.Unknown:
-					default:
-						typeChar = "U";
-						break;
-				}
-				sb.AppendLine($"  {typeChar} {workEvent.Time.TimeOfDay}");
+				sb.AppendLine($"  {workEvent.ToString()}");
 			}
 			return sb.ToString();
 		}
