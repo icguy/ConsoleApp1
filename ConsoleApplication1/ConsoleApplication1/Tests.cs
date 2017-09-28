@@ -8,9 +8,11 @@ namespace ConsoleApplication1
 {
 	class Tests : WorkTimeApp
 	{
+		private readonly TestFileIO _testFileIO;
+
 		public Tests() : base(new TestFileIO(), new TestInput())
 		{
-
+			_testFileIO = _fileIO as TestFileIO;
 		}
 
 		public void RunTests()
@@ -24,10 +26,11 @@ namespace ConsoleApplication1
 			Debug.Assert(this.T007_FileIO(), "T007");
 			Debug.Assert(this.T008_DeleteDay(), "T008");
 			Debug.Assert(this.T009_Recalculate(), "T009");
+			Debug.Assert(this.T010_EditDay(), "T010");
 			Console.WriteLine("Testing finished");
 			Console.ReadLine();
 		}
-		
+
 		bool T001_DailyWork_FromEvents()
 		{
 			WorkEvent[] events = new WorkEvent[] {
@@ -223,16 +226,17 @@ namespace ConsoleApplication1
 
 			WorkTimes wt = new WorkTimes();
 			wt.AddWorks(events);
+			FileIO fileIO = new FileIO("testfile.json");
 
-			_fileIO.WriteToFile(wt);
-			var wt2 = _fileIO.ReadFromFile();
-			if( !TSEquals(wt2.Balance, wt.Balance) )
+			fileIO.WriteToFile(wt);
+			var wt2 = fileIO.ReadFromFile();
+			if ( !TSEquals(wt2.Balance, wt.Balance) )
 				return false;
-			if( wt2.DailyWorks.Length != wt.DailyWorks.Length )
+			if ( wt2.DailyWorks.Length != wt.DailyWorks.Length )
 				return false;
-			for( int i = 0; i < wt.DailyWorks.Length; i++ )
+			for ( int i = 0; i < wt.DailyWorks.Length; i++ )
 			{
-				if( !TSEquals(wt.DailyWorks[i].Balance, wt2.DailyWorks[i].Balance) )
+				if ( !TSEquals(wt.DailyWorks[i].Balance, wt2.DailyWorks[i].Balance) )
 					return false;
 			}
 			return true;
@@ -273,14 +277,16 @@ namespace ConsoleApplication1
 			};
 			var workTimes = new WorkTimes();
 			workTimes.AddWorks(events);
-			_fileIO.WriteToFile(workTimes);
+			_testFileIO.WriteToFile(workTimes);
+
 			this.DeleteDay(new[] { "/deleteday", "2017.06.02" });
-			var newWorkTimes = _fileIO.ReadFromFile();
-			if (newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 2) != null)
+
+			var newWorkTimes = _testFileIO.ReadFromFile();
+			if ( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 2) != null )
 				return false;
-			if (newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 1).Events.Count() != 2)
+			if ( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 1).Events.Count() != 2 )
 				return false;
-			if (newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 3).Events.Count() != 2)
+			if ( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 3).Events.Count() != 2 )
 				return false;
 			return true;
 		}
@@ -344,28 +350,27 @@ namespace ConsoleApplication1
 					new DailyWork() {
 						 Events = new WorkEvent[] {
 							new WorkEvent() { Time = new DateTime(2017, 06, 21, 9, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 21, 10, 00, 00), Type = EventType.Departure },
+							new WorkEvent() { Time = new DateTime(2017, 06, 21, 11, 00, 00), Type = EventType.Arrival },
 							new WorkEvent() { Time = new DateTime(2017, 06, 21, 18, 00, 00), Type = EventType.Departure }
 						 }
-
 					},
 					new DailyWork() {
 						 Events = new WorkEvent[] {
 							new WorkEvent() { Time = new DateTime(2017, 06, 22, 9, 00, 00), Type = EventType.Arrival },
 							new WorkEvent() { Time = new DateTime(2017, 06, 22, 18, 00, 00), Type = EventType.Departure }
 						 }
-
 					},
 					new DailyWork() {
 						 Events = new WorkEvent[] {
 							new WorkEvent() { Time = new DateTime(2017, 06, 23, 9, 00, 00), Type = EventType.Arrival },
 							new WorkEvent() { Time = new DateTime(2017, 06, 23, 18, 00, 00), Type = EventType.Departure }
 						 }
-
 					},
 				}
 			};
 
-			workTimes.Recalculate();
+
 
 			if ( !TSEquals(workTimes.Balance, new TimeSpan(4, 0, 0)) )
 				return false;
