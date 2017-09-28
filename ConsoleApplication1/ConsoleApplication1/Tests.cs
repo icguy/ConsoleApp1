@@ -51,7 +51,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = DailyWork.FromWorkEvents(events);
+			var dailywork = Utils.CreateDailyWork(events);
 			return TSEquals(dailywork.Balance, new TimeSpan(0, 0, 0));
 		}
 		bool T002_DailyWork_FromEvents()
@@ -79,7 +79,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = DailyWork.FromWorkEvents(events);
+			var dailywork = Utils.CreateDailyWork(events);
 			return TSEquals(dailywork.Balance, new TimeSpan(-8, 0, 0));
 		}
 		bool T003_DailyWork_FromEvents()
@@ -107,7 +107,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = DailyWork.FromWorkEvents(events);
+			var dailywork = Utils.CreateDailyWork(events);
 			return TSEquals(dailywork.Balance, new TimeSpan(-8, 0, 0));
 		}
 		bool T004_DailyWork_FromEvents()
@@ -135,7 +135,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = DailyWork.FromWorkEvents(events);
+			var dailywork = Utils.CreateDailyWork(events);
 			return TSEquals(dailywork.Balance, new TimeSpan(-5, 0, 0));
 		}
 		bool T005_DailyWork_FromEvents()
@@ -163,7 +163,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = DailyWork.FromWorkEvents(events);
+			var dailywork = Utils.CreateDailyWork(events);
 			return TSEquals(dailywork.Balance, new TimeSpan(-2, -30, 0));
 		}
 		bool T006_DailyWork_FromEvents()
@@ -191,7 +191,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = DailyWork.FromWorkEvents(events);
+			var dailywork = Utils.CreateDailyWork(events);
 			return TSEquals(dailywork.Balance, new TimeSpan(-7, -30, 0));
 		}
 		bool T007_FileIO()
@@ -237,7 +237,6 @@ namespace ConsoleApplication1
 		}
 		bool T008_DeleteDay()
 		{
-			var testFile = "test.json";
 			WorkEvent[] events = new WorkEvent[] {
 				new WorkEvent()
 				{

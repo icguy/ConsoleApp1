@@ -45,7 +45,7 @@ namespace ConsoleApplication1
 			{
 				var firstEventTime = filteredEvents[0].Time;
 				var currentDayEvents = filteredEvents.Where(e => (e.Time.DayOfYear == firstEventTime.DayOfYear)).ToList();
-				var currentDailyWork = DailyWork.FromWorkEvents(currentDayEvents);
+				var currentDailyWork = Utils.CreateDailyWork(currentDayEvents);
 				newDailyWorks.Add(currentDailyWork);
 				workTimes.Balance += currentDailyWork.Balance;
 				foreach (var e in currentDayEvents)
@@ -54,6 +54,22 @@ namespace ConsoleApplication1
 				}
 			}
 			workTimes.DailyWorks = newDailyWorks.ToArray();
+		}
+
+		public static void Recalculate(this WorkTimes workTimes)
+		{
+			workTimes.Balance = TimeSpan.Zero;
+			foreach (var work in workTimes.DailyWorks)
+			{
+				work.Recalculate();
+				workTimes.Balance += work.Balance;
+			}
+		}
+		
+		public static void Recalculate(this DailyWork dailyWork)
+		{
+			var work = Utils.CreateDailyWork(dailyWork.Events);
+			dailyWork.Balance = work.Balance;
 		}
 
 		public static void PrintEvent(this EventLogEntry entry)
