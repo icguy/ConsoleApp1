@@ -30,35 +30,35 @@ namespace ConsoleApplication1
 
 		public void Run(string[] args)
 		{
-			if ( args.Contains("/help") )
+			if( args.Contains("/help") )
 			{
 				this.PrintHelp();
 				return;
 			}
 
-			if ( args.Contains("/tests") )
+			if( args.Contains("/tests") )
 				new Tests().RunTests();
 
 			RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
-			if ( args.Contains("/addregistry") )
+			if( args.Contains("/addregistry") )
 			{
 				rk.SetValue("WorkTime", System.Reflection.Assembly.GetExecutingAssembly().Location);
 				Console.WriteLine("Now running on startup");
 			}
-			else if ( args.Contains("/removeregistry") )
+			else if( args.Contains("/removeregistry") )
 			{
 				rk.DeleteValue("WorkTime");
 				Console.WriteLine("Disabled running on startup");
 				return;
 			}
 
-			if ( args.Contains("/deleteday") )
+			if( args.Contains("/deleteday") )
 			{
 				this.DeleteDay(args);
 				return;
 			}
 
-			if ( args.Contains("/editday") )
+			if( args.Contains("/editday") )
 			{
 				this.EditDay(args);
 				return;
@@ -75,7 +75,7 @@ namespace ConsoleApplication1
 
 			var count = workTimes.DailyWorks.Count();
 			var lastN = workTimes.DailyWorks.Skip(count - 5);
-			foreach ( var dailyWork in lastN )
+			foreach( var dailyWork in lastN )
 			{
 				Console.WriteLine(dailyWork);
 			}
@@ -97,7 +97,7 @@ namespace ConsoleApplication1
 				month = int.Parse(parts[1]);
 				day = int.Parse(parts[2]);
 			}
-			catch ( Exception )
+			catch( Exception )
 			{
 				Console.WriteLine("please specify a date in YYYY.MM.DD format");
 				return;
@@ -107,7 +107,7 @@ namespace ConsoleApplication1
 
 			DateTime date = new DateTime(year, month, day);
 			var dailyWork = workTimes.DailyWorks.ToList().FirstOrDefault(dw => dw.Events.First().Time.Date == date);
-			if ( dailyWork == null )
+			if( dailyWork == null )
 			{
 				Console.WriteLine("Could not find the specified date.");
 				return;
@@ -134,7 +134,7 @@ namespace ConsoleApplication1
 				month = int.Parse(parts[1]);
 				day = int.Parse(parts[2]);
 			}
-			catch ( Exception )
+			catch( Exception )
 			{
 				Console.WriteLine("please specify a date in YYYY.MM.DD format");
 				return;
@@ -144,26 +144,29 @@ namespace ConsoleApplication1
 
 			DateTime date = new DateTime(year, month, day);
 			var dailyWork = workTimes.DailyWorks.ToList().FirstOrDefault(dw => dw.Events.First().Time.Date == date);
-			if ( dailyWork == null )
+			if( dailyWork == null )
 			{
 				Console.WriteLine("Could not find the specified date.");
 				return;
 			}
 
 			var newEvents = new List<WorkEvent>();
-			foreach ( var e in dailyWork.Events )
+			foreach( var e in dailyWork.Events )
 			{
-				while ( true )
+				while( true )
 				{
+					Console.Clear();
+					Console.WriteLine(dailyWork);
+					Console.WriteLine();
 					Console.WriteLine(e.ToString());
 					Console.WriteLine("Keep event? (y/n)");
 					string resp = _input.ReadLine();
-					if ( resp.ToLower() == "y" )
+					if( resp.ToLower() == "y" )
 					{
 						newEvents.Add(e);
 						break;
 					}
-					else if ( resp.ToLower() == "n" )
+					else if( resp.ToLower() == "n" )
 					{
 						break;
 					}
@@ -171,13 +174,15 @@ namespace ConsoleApplication1
 			}
 			dailyWork.Events = newEvents.ToArray();
 			workTimes.Recalculate();
+			Console.WriteLine();
+			Console.WriteLine("Editing finished. Press enter to exit.");
 
 			_fileIO.WriteToFile(workTimes);
 		}
 
 		public WorkTimes BuildWorkTimes(WorkTimes workTimes, IEnumerable<EventLogEntry> events)
 		{
-			if ( workTimes == null )
+			if( workTimes == null )
 				workTimes = new WorkTimes();
 
 			var workEvents = events.Select(e => e.ToWorkEvent());
