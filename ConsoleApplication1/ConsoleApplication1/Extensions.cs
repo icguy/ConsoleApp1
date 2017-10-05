@@ -31,8 +31,7 @@ namespace ConsoleApplication1
 		public static void AddWorks(this WorkTimes workTimes, IEnumerable<WorkEvent> events)
 		{
 			var lastWorkTime = workTimes.DailyWorks.LastOrDefault()?.Events?.LastOrDefault()?.Time ?? DateTime.MinValue;
-			var lastMidnight = DateTime.Now;
-			lastMidnight -= lastMidnight.TimeOfDay;
+			var lastMidnight = DateTime.Now.Date;
 			var filteredEvents = events
 				.Where(e => lastWorkTime < e.Time && e.Time < lastMidnight)
 				.OrderBy(e => e.Time)

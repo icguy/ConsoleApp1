@@ -81,6 +81,15 @@ namespace ConsoleApplication1
 			}
 			Console.WriteLine("total:");
 			Console.WriteLine(workTimes.Balance);
+
+			var workEventsToday = eventList.Select(e => e.ToWorkEvent()).Where(e => DateTime.Now.Date < e.Time).ToList();
+			var now = DateTime.Now;
+			var nowSeconds = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Kind);
+			workEventsToday.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
+			var todayWork = Utils.CreateDailyWork(workEventsToday);
+			Console.WriteLine();
+			Console.WriteLine("today:");
+			Console.WriteLine(todayWork);
 		}
 
 		protected void DeleteDay(string[] args)
