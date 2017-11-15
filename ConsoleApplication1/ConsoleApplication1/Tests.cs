@@ -29,6 +29,7 @@ namespace ConsoleApplication1
 			Debug.Assert(this.T008_DeleteDay(), "T008");
 			Debug.Assert(this.T009_Recalculate(), "T009");
 			Debug.Assert(this.T010_EditDay(), "T010");
+			Debug.Assert(this.T011_GetExpectedDeparture(), "T011");
 			Console.WriteLine();
 			Console.WriteLine("Testing finished");
 			Console.ReadLine();
@@ -233,13 +234,13 @@ namespace ConsoleApplication1
 
 			fileIO.WriteToFile(wt);
 			var wt2 = fileIO.ReadFromFile();
-			if ( !TSEquals(wt2.Balance, wt.Balance) )
+			if( !TSEquals(wt2.Balance, wt.Balance) )
 				return false;
-			if ( wt2.DailyWorks.Length != wt.DailyWorks.Length )
+			if( wt2.DailyWorks.Length != wt.DailyWorks.Length )
 				return false;
-			for ( int i = 0; i < wt.DailyWorks.Length; i++ )
+			for( int i = 0; i < wt.DailyWorks.Length; i++ )
 			{
-				if ( !TSEquals(wt.DailyWorks[i].Balance, wt2.DailyWorks[i].Balance) )
+				if( !TSEquals(wt.DailyWorks[i].Balance, wt2.DailyWorks[i].Balance) )
 					return false;
 			}
 			return true;
@@ -285,11 +286,11 @@ namespace ConsoleApplication1
 			this.DeleteDay(new[] { "/deleteday", "2017.06.02" });
 
 			var newWorkTimes = _testFileIO.ReadFromFile();
-			if ( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 2) != null )
+			if( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 2) != null )
 				return false;
-			if ( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 1).Events.Count() != 2 )
+			if( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 1).Events.Count() != 2 )
 				return false;
-			if ( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 3).Events.Count() != 2 )
+			if( newWorkTimes.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Day == 3).Events.Count() != 2 )
 				return false;
 			return true;
 		}
@@ -330,11 +331,11 @@ namespace ConsoleApplication1
 
 			workTimes.Recalculate();
 
-			if ( !TSEquals(workTimes.Balance, new TimeSpan(4, 0, 0)) )
+			if( !TSEquals(workTimes.Balance, new TimeSpan(4, 0, 0)) )
 				return false;
-			foreach ( var dailyWork in workTimes.DailyWorks )
+			foreach( var dailyWork in workTimes.DailyWorks )
 			{
-				if ( !TSEquals(dailyWork.Balance, new TimeSpan(1, 0, 0)) )
+				if( !TSEquals(dailyWork.Balance, new TimeSpan(1, 0, 0)) )
 					return false;
 			}
 			return true;
@@ -376,16 +377,36 @@ namespace ConsoleApplication1
 			var inputs = new[] { "y", "n", "n", "y" };
 			int inputIdx = 0;
 			_testInput.OnReadline = () => { return inputs[inputIdx++]; };
-			
+
 			this.EditDay(new[] { "/editday", "2017.06.21" });
-			
-			if ( !TSEquals(workTimes.Balance, new TimeSpan(4, 0, 0)) )
+
+			if( !TSEquals(workTimes.Balance, new TimeSpan(4, 0, 0)) )
 				return false;
-			foreach ( var dailyWork in workTimes.DailyWorks )
+			foreach( var dailyWork in workTimes.DailyWorks )
 			{
-				if ( !TSEquals(dailyWork.Balance, new TimeSpan(1, 0, 0)) )
+				if( !TSEquals(dailyWork.Balance, new TimeSpan(1, 0, 0)) )
 					return false;
 			}
+			return true;
+		}
+		bool T011_GetExpectedDeparture()
+		{
+			var dailyWork = new DailyWork()
+			{
+				Events = new WorkEvent[]
+				{
+					new WorkEvent() { Time = new DateTime(2017, 06, 21, 9, 00, 00), Type = EventType.Arrival },
+					new WorkEvent() { Time = new DateTime(2017, 06, 21, 10, 00, 00), Type = EventType.Departure },
+					new WorkEvent() { Time = new DateTime(2017, 06, 21, 11, 00, 00), Type = EventType.Arrival },
+					new WorkEvent() { Time = new DateTime(2017, 06, 21, 12, 00, 00), Type = EventType.Departure }
+				},
+				Balance = TimeSpan.FromHours(-6)
+			};
+
+			var expectedDeparture = this.GetExpectedDeparture(dailyWork);
+
+			if( expectedDeparture.Hour != 18 )
+				return false;
 			return true;
 		}
 

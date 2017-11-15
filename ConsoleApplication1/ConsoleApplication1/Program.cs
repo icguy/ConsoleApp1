@@ -10,7 +10,7 @@ namespace ConsoleApplication1
 {
 	public class Program
 	{
-		const string dataFile = "times.json";
+		const string dataFile = @" D:\aspnethello\ConsoleApp1\ConsoleApplication1\ConsoleApplication1\bin\Release\times.json";
 		static void Main(string[] args)
 		{
 			new WorkTimeApp(new FileIO(dataFile), new ConsoleInput()).Run(args);
@@ -64,6 +64,12 @@ namespace ConsoleApplication1
 				return;
 			}
 
+			if( args.Contains("/ignoreday") )
+			{
+				this.IgnoreDay(args);
+				return;
+			}
+
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
 			eventList.ForEach(e => e.PrintEvent());
 			Console.WriteLine();
@@ -87,9 +93,18 @@ namespace ConsoleApplication1
 			var nowSeconds = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Kind);
 			workEventsToday.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
 			var todayWork = Utils.CreateDailyWork(workEventsToday);
+			DateTime expectedDeparture = GetExpectedDeparture(todayWork);
 			Console.WriteLine();
 			Console.WriteLine("today:");
 			Console.WriteLine(todayWork);
+			Console.WriteLine($"expected departure at: {expectedDeparture}");
+		}
+
+		protected DateTime GetExpectedDeparture(DailyWork todayWork)
+		{
+			var lastSignin = todayWork.Events.OrderByDescending(e => e.Time).FirstOrDefault(/*e => e.Type == EventType.Arrival*/);
+			var expectedDeparture = lastSignin.Time - todayWork.Balance;
+			return expectedDeparture;
 		}
 
 		protected void DeleteDay(string[] args)
@@ -122,8 +137,7 @@ namespace ConsoleApplication1
 				return;
 			}
 
-			var newDailyWorks = workTimes.DailyWorks.ToList();
-			newDailyWorks.Remove(dailyWork);
+			var newDailyWorks = workTimes.DailyWorks.Where(dw => dw.Events.First().Time.Date != date);
 			workTimes.DailyWorks = newDailyWorks.ToArray();
 
 			_fileIO.WriteToFile(workTimes);
@@ -159,6 +173,9 @@ namespace ConsoleApplication1
 				return;
 			}
 
+			var newWorks = workTimes.DailyWorks.Where(dw => dw.Events.First().Time.Date != date).ToList();
+
+			var newWork = new DailyWork();
 			var newEvents = new List<WorkEvent>();
 			foreach( var e in dailyWork.Events )
 			{
@@ -181,7 +198,55 @@ namespace ConsoleApplication1
 					}
 				}
 			}
-			dailyWork.Events = newEvents.ToArray();
+			newWork.Events = newEvents.ToArray();
+			newWorks.Add(newWork);
+			workTimes.DailyWorks = newWorks.ToArray();
+			workTimes.Recalculate();
+			Console.WriteLine();
+			Console.WriteLine("Editing finished. Press enter to exit.");
+
+			_fileIO.WriteToFile(workTimes);
+		}
+
+		protected void IgnoreDay(string[] args)
+		{
+			int year = -1;
+			int month = -1;
+			int day = -1;
+			try
+			{
+				int argIdx = args.ToList().IndexOf("/ignoreday");
+				string dateString = args[argIdx + 1];
+				var parts = dateString.Split(new char[] { '.' });
+				year = int.Parse(parts[0]);
+				month = int.Parse(parts[1]);
+				day = int.Parse(parts[2]);
+			}
+			catch( Exception )
+			{
+				Console.WriteLine("please specify a date in YYYY.MM.DD format");
+				return;
+			}
+
+			var workTimes = _fileIO.ReadFromFile();
+
+			DateTime date = new DateTime(year, month, day);
+			var dailyWorks = workTimes.DailyWorks.ToList().Where(dw => dw.Events.First().Time.Date == date);
+			if( !dailyWorks.Any() )
+			{
+				Console.WriteLine("Could not find the specified date.");
+				return;
+			}
+
+			var newWorks = workTimes.DailyWorks.Where(dw => dw.Events.First().Time.Date != date).ToList();
+
+			var newWork = new DailyWork();
+			var newEvents = new List<WorkEvent>();
+			newEvents.Add(new WorkEvent { Time = new DateTime(year, month, day, 15, 50, 0), Type = EventType.Arrival });
+			newEvents.Add(new WorkEvent { Time = new DateTime(year, month, day, 23, 50, 0), Type = EventType.Departure });
+			newWork.Events = newEvents.ToArray();
+			newWorks.Add(newWork);
+			workTimes.DailyWorks = newWorks.ToArray();			
 			workTimes.Recalculate();
 			Console.WriteLine();
 			Console.WriteLine("Editing finished. Press enter to exit.");
