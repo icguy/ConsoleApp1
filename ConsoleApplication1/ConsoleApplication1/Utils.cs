@@ -9,10 +9,10 @@ namespace ConsoleApplication1
 {
 	class Utils
 	{
-		public static DailyWork CreateDailyWork(IEnumerable<WorkEvent> events)
+		public static DailyWork CreateDailyWork(IEnumerable<WorkEvent> events, int hoursToWorkToday)
 		{
 			var work = new DailyWork();
-			TimeSpan balance = TimeSpan.FromHours(-8);
+			TimeSpan balance = TimeSpan.FromHours(-hoursToWorkToday);
 			List<WorkEvent> filteredEvents = new List<WorkEvent>();
 
 			DateTime? lastSignin = null;

@@ -92,7 +92,7 @@ namespace ConsoleApplication1
 			var now = DateTime.Now;
 			var nowSeconds = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Kind);
 			workEventsToday.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
-			var todayWork = Utils.CreateDailyWork(workEventsToday);
+			var todayWork = Utils.CreateDailyWork(workEventsToday, 8);
 			DateTime expectedDeparture = GetExpectedDeparture(todayWork);
 			Console.WriteLine();
 			Console.WriteLine("today:");
@@ -198,6 +198,17 @@ namespace ConsoleApplication1
 					}
 				}
 			}
+			while( true )
+			{
+				Console.Write("Hours to work today: ");
+				var hoursString = _input.ReadLine();
+				if( int.TryParse(hoursString, out int hours) )
+				{
+					newWork.HoursToWorkToday = hours;
+					break;
+				}
+				Console.WriteLine("Please write a number.");
+			}
 			newWork.Events = newEvents.ToArray();
 			newWorks.Add(newWork);
 			workTimes.DailyWorks = newWorks.ToArray();
@@ -246,7 +257,7 @@ namespace ConsoleApplication1
 			newEvents.Add(new WorkEvent { Time = new DateTime(year, month, day, 23, 50, 0), Type = EventType.Departure });
 			newWork.Events = newEvents.ToArray();
 			newWorks.Add(newWork);
-			workTimes.DailyWorks = newWorks.ToArray();			
+			workTimes.DailyWorks = newWorks.ToArray();
 			workTimes.Recalculate();
 			Console.WriteLine();
 			Console.WriteLine("Editing finished. Press enter to exit.");

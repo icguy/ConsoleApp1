@@ -30,6 +30,7 @@ namespace ConsoleApplication1
 			Debug.Assert(this.T009_Recalculate(), "T009");
 			Debug.Assert(this.T010_EditDay(), "T010");
 			Debug.Assert(this.T011_GetExpectedDeparture(), "T011");
+			Debug.Assert(this.T012_IgnoreDay_HalfDay(), "T012");
 			Console.WriteLine();
 			Console.WriteLine("Testing finished");
 			Console.ReadLine();
@@ -60,7 +61,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = Utils.CreateDailyWork(events);
+			var dailywork = Utils.CreateDailyWork(events, 8);
 			return TSEquals(dailywork.Balance, new TimeSpan(0, 0, 0));
 		}
 		bool T002_DailyWork_FromEvents()
@@ -88,7 +89,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = Utils.CreateDailyWork(events);
+			var dailywork = Utils.CreateDailyWork(events, 8);
 			return TSEquals(dailywork.Balance, new TimeSpan(-8, 0, 0));
 		}
 		bool T003_DailyWork_FromEvents()
@@ -116,7 +117,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = Utils.CreateDailyWork(events);
+			var dailywork = Utils.CreateDailyWork(events, 8);
 			return TSEquals(dailywork.Balance, new TimeSpan(-8, 0, 0));
 		}
 		bool T004_DailyWork_FromEvents()
@@ -144,7 +145,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = Utils.CreateDailyWork(events);
+			var dailywork = Utils.CreateDailyWork(events, 8);
 			return TSEquals(dailywork.Balance, new TimeSpan(-5, 0, 0));
 		}
 		bool T005_DailyWork_FromEvents()
@@ -172,7 +173,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = Utils.CreateDailyWork(events);
+			var dailywork = Utils.CreateDailyWork(events, 8);
 			return TSEquals(dailywork.Balance, new TimeSpan(-2, -30, 0));
 		}
 		bool T006_DailyWork_FromEvents()
@@ -200,7 +201,7 @@ namespace ConsoleApplication1
 				}
 			};
 
-			var dailywork = Utils.CreateDailyWork(events);
+			var dailywork = Utils.CreateDailyWork(events, 8);
 			return TSEquals(dailywork.Balance, new TimeSpan(-7, -30, 0));
 		}
 		bool T007_FileIO()
@@ -374,7 +375,7 @@ namespace ConsoleApplication1
 				}
 			};
 			_testFileIO.WorkTimes = workTimes;
-			var inputs = new[] { "y", "n", "n", "y" };
+			var inputs = new[] { "y", "n", "n", "y", "8" };
 			int inputIdx = 0;
 			_testInput.OnReadline = () => { return inputs[inputIdx++]; };
 
@@ -409,6 +410,55 @@ namespace ConsoleApplication1
 				return false;
 			return true;
 		}
+		bool T012_IgnoreDay_HalfDay()
+		{
+			WorkTimes workTimes = new WorkTimes()
+			{
+				DailyWorks = new DailyWork[] {
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 20, 10, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 20, 18, 00, 00), Type = EventType.Departure }
+						 }
+					},
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 21, 8, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 21, 9, 00, 00), Type = EventType.Departure },
+							new WorkEvent() { Time = new DateTime(2017, 06, 21, 10, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 21, 14, 00, 00), Type = EventType.Departure }
+						 }
+					},
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 22, 10, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 22, 18, 00, 00), Type = EventType.Departure }
+						 }
+					},
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 23, 10, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 23, 18, 00, 00), Type = EventType.Departure }
+						 }
+					},
+				}
+			};
+			_testFileIO.WorkTimes = workTimes;
+			var inputs = new[] { "n", "n", "y", "y", "asd", "4" };
+			int inputIdx = 0;
+			_testInput.OnReadline = () => { return inputs[inputIdx++]; };
+
+			this.EditDay(new[] { "/editday", "2017.06.21" });
+
+			if( !TSEquals(workTimes.Balance, new TimeSpan(0, 0, 0)) )
+				return false;
+			foreach( var dailyWork in workTimes.DailyWorks )
+			{
+				if( !TSEquals(dailyWork.Balance, new TimeSpan(0, 0, 0)) )
+					return false;
+			}
+			return true;
+		}
 
 		static bool TSEquals(TimeSpan ts1, TimeSpan ts2)
 		{
@@ -422,7 +472,7 @@ namespace ConsoleApplication1
 		public Func<string> OnReadline { get; set; } = () => { throw new NotImplementedException(); };
 		public string ReadLine()
 		{
-			return OnReadline();
+			return this.OnReadline();
 		}
 	}
 

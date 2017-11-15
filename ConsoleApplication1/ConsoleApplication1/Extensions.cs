@@ -44,7 +44,7 @@ namespace ConsoleApplication1
 			{
 				var firstEventTime = filteredEvents[0].Time;
 				var currentDayEvents = filteredEvents.Where(e => (e.Time.DayOfYear == firstEventTime.DayOfYear)).ToList();
-				var currentDailyWork = Utils.CreateDailyWork(currentDayEvents);
+				var currentDailyWork = Utils.CreateDailyWork(currentDayEvents, 8);
 				newDailyWorks.Add(currentDailyWork);
 				workTimes.Balance += currentDailyWork.Balance;
 				foreach (var e in currentDayEvents)
@@ -67,7 +67,8 @@ namespace ConsoleApplication1
 		
 		public static void Recalculate(this DailyWork dailyWork)
 		{
-			var work = Utils.CreateDailyWork(dailyWork.Events);
+			var hours = dailyWork.HoursToWorkToday;
+			var work = Utils.CreateDailyWork(dailyWork.Events, hours);
 			dailyWork.Balance = work.Balance;
 		}
 
