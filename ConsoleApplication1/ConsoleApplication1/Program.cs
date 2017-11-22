@@ -10,10 +10,11 @@ namespace ConsoleApplication1
 {
 	public class Program
 	{
-		const string dataFile = @" D:\aspnethello\ConsoleApp1\ConsoleApplication1\ConsoleApplication1\bin\Release\times.json";
+		const string dataFile = "times.json";
+		const string cacheFile = "cache.json";
 		static void Main(string[] args)
 		{
-			new WorkTimeApp(new FileIO(dataFile), new ConsoleInput()).Run(args);
+			new WorkTimeApp(new FileIO(dataFile), new FileIO(cacheFile), new ConsoleInput()).Run(args);
 			Console.ReadLine();
 		}
 	}
@@ -21,11 +22,13 @@ namespace ConsoleApplication1
 	{
 		protected readonly IUserInput _input;
 		protected readonly IFileIO _fileIO;
+		protected readonly IFileIO _todayCache;
 
-		public WorkTimeApp(IFileIO fileIO, IUserInput input)
+		public WorkTimeApp(IFileIO fileIO, IFileIO todayCache, IUserInput input)
 		{
 			_fileIO = fileIO;
 			_input = input;
+			_todayCache = todayCache;
 		}
 
 		public void Run(string[] args)
@@ -74,8 +77,10 @@ namespace ConsoleApplication1
 			eventList.ForEach(e => e.PrintEvent());
 			Console.WriteLine();
 
+			List<WorkEvent> eventsWithCache = AppendCache(eventList.Select(e => e.ToWorkEvent()));
+
 			var workTimes = _fileIO.ReadFromFile();
-			this.BuildWorkTimes(workTimes, eventList);
+			this.BuildWorkTimes(workTimes, eventsWithCache);
 			_fileIO.WriteToFile(workTimes);
 			Console.WriteLine();
 
@@ -91,6 +96,10 @@ namespace ConsoleApplication1
 			var workEventsToday = eventList.Select(e => e.ToWorkEvent()).Where(e => DateTime.Now.Date < e.Time).ToList();
 			var now = DateTime.Now;
 			var nowSeconds = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Kind);
+
+			var workToBeCached = new WorkTimes { DailyWorks = new[] { Utils.CreateDailyWork(workEventsToday, 8) } };
+			_todayCache.WriteToFile(workToBeCached);
+
 			workEventsToday.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
 			var todayWork = Utils.CreateDailyWork(workEventsToday, 8);
 			DateTime expectedDeparture = GetExpectedDeparture(todayWork);
@@ -98,6 +107,19 @@ namespace ConsoleApplication1
 			Console.WriteLine("today:");
 			Console.WriteLine(todayWork);
 			Console.WriteLine($"expected departure at: {expectedDeparture}");
+		}
+
+		protected List<WorkEvent> AppendCache(IEnumerable<WorkEvent> eventList)
+		{
+			var cache = _todayCache.ReadFromFile();
+			var eventsWithCache = new List<WorkEvent>();
+			eventsWithCache.AddRange(eventList);
+			foreach( var work in cache.DailyWorks )
+			{
+				eventsWithCache.AddRange(work.Events);
+			}
+			eventsWithCache = eventsWithCache.OrderBy(e => e.Time).ToList();
+			return eventsWithCache;
 		}
 
 		protected DateTime GetExpectedDeparture(DailyWork todayWork)
@@ -265,12 +287,11 @@ namespace ConsoleApplication1
 			_fileIO.WriteToFile(workTimes);
 		}
 
-		public WorkTimes BuildWorkTimes(WorkTimes workTimes, IEnumerable<EventLogEntry> events)
+		public WorkTimes BuildWorkTimes(WorkTimes workTimes, IEnumerable<WorkEvent> workEvents)
 		{
 			if( workTimes == null )
 				workTimes = new WorkTimes();
 
-			var workEvents = events.Select(e => e.ToWorkEvent());
 			workTimes.AddWorks(workEvents);
 			return workTimes;
 		}

@@ -13,7 +13,8 @@ namespace ConsoleApplication1.Model
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine($"{this.Events.FirstOrDefault().Time.Date.ToShortDateString()} | {this.Balance}");
+			sb.AppendLine($"{this.Events.FirstOrDefault()?.Time.Date.ToShortDateString()} | {this.Balance}");
+			sb.AppendLine($"hours to work: {this.HoursToWorkToday}");
 			foreach( var workEvent in this.Events )
 			{
 				sb.AppendLine($"  {workEvent.ToString()}");

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using ConsoleApplication1.Model;
 using ConsoleApplication1.IO;
+using System.Collections.Generic;
 
 namespace ConsoleApplication1
 {
@@ -10,11 +11,13 @@ namespace ConsoleApplication1
 	{
 		private readonly TestFileIO _testFileIO;
 		private readonly TestInput _testInput;
+		private readonly TestFileIO _testCache;
 
-		public Tests() : base(new TestFileIO(), new TestInput())
+		public Tests() : base(new TestFileIO(), new TestFileIO(), new TestInput())
 		{
 			_testFileIO = _fileIO as TestFileIO;
 			_testInput = _input as TestInput;
+			_testCache = _todayCache as TestFileIO;
 		}
 
 		public void RunTests()
@@ -31,6 +34,7 @@ namespace ConsoleApplication1
 			Debug.Assert(this.T010_EditDay(), "T010");
 			Debug.Assert(this.T011_GetExpectedDeparture(), "T011");
 			Debug.Assert(this.T012_IgnoreDay_HalfDay(), "T012");
+			Debug.Assert(this.T013_AppendCache(), "T013");
 			Console.WriteLine();
 			Console.WriteLine("Testing finished");
 			Console.ReadLine();
@@ -459,6 +463,39 @@ namespace ConsoleApplication1
 			}
 			return true;
 		}
+		bool T013_AppendCache()
+		{
+			WorkTimes cached = new WorkTimes()
+			{
+				DailyWorks = new DailyWork[] {
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 24, 9, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 24, 12, 00, 00), Type = EventType.Departure }
+						 }
+					}
+				}
+			};
+			_testCache.WorkTimes = cached;
+			var eventList = new[]
+			{
+				new WorkEvent() { Time = new DateTime(2017, 06, 24, 11, 00, 00), Type = EventType.Arrival },
+				new WorkEvent() { Time = new DateTime(2017, 06, 24, 10, 00, 00), Type = EventType.Departure }
+			};
+
+			var eventsWithCache = this.AppendCache(eventList);
+
+			if( eventsWithCache[0].Time != new DateTime(2017, 06, 24, 9, 00, 00) || eventsWithCache[0].Type != EventType.Arrival )
+				return false;
+			if( eventsWithCache[1].Time != new DateTime(2017, 06, 24, 10, 00, 00) || eventsWithCache[1].Type != EventType.Departure )
+				return false;
+			if( eventsWithCache[2].Time != new DateTime(2017, 06, 24, 11, 00, 00) || eventsWithCache[2].Type != EventType.Arrival )
+				return false;
+			if( eventsWithCache[3].Time != new DateTime(2017, 06, 24, 12, 00, 00) || eventsWithCache[3].Type != EventType.Departure )
+				return false;
+			return true;
+		}
+
 
 		static bool TSEquals(TimeSpan ts1, TimeSpan ts2)
 		{
