@@ -73,6 +73,12 @@ namespace ConsoleApplication1
 				return;
 			}
 
+			if( args.Contains("/recalculate") )
+			{
+				this.Recalculate();
+				return;
+			}
+
 			List<EventLogEntry> eventList = LogReader.GetSecurityEvents();
 			eventList.ForEach(e => e.PrintEvent());
 			Console.WriteLine();
@@ -280,6 +286,17 @@ namespace ConsoleApplication1
 			newWork.Events = newEvents.ToArray();
 			newWorks.Add(newWork);
 			workTimes.DailyWorks = newWorks.ToArray();
+			workTimes.Recalculate();
+			Console.WriteLine();
+			Console.WriteLine("Editing finished. Press enter to exit.");
+
+			_fileIO.WriteToFile(workTimes);
+		}
+
+		protected void Recalculate()
+		{
+			var workTimes = _fileIO.ReadFromFile();
+
 			workTimes.Recalculate();
 			Console.WriteLine();
 			Console.WriteLine("Editing finished. Press enter to exit.");
