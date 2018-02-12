@@ -9,3 +9,5 @@
 *.suo
 *.csproj
 *.sln
+
+*/AssemblyInfo.cs
