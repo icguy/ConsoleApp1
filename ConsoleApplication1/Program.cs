@@ -237,8 +237,10 @@ namespace ConsoleApplication1
 				}
 				Console.WriteLine("Please write a number.");
 			}
+            newEvents.Add(new WorkEvent { Time = new DateTime(year, month, day, 23, 50, 00), Type = EventType.Arrival });
+            newEvents.Add(new WorkEvent { Time = new DateTime(year, month, day, 23, 50, 01), Type = EventType.Departure });
 			newWork.Events = newEvents.ToArray();
-			newWorks.Add(newWork);
+            newWorks.Add(newWork);
 			workTimes.DailyWorks = newWorks.ToArray();
 			workTimes.Recalculate();
 			Console.WriteLine();
